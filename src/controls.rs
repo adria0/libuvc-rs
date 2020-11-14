@@ -63,6 +63,25 @@ impl<'a> DeviceHandle<'a> {
             }
         }
     }
+    pub fn set_ae_mode(&self, mode: AutoExposureMode) -> Result<()> {
+        unsafe {
+            let mode = match mode {
+                AutoExposureMode::Manual => 1,
+                AutoExposureMode::Auto => 2,
+                AutoExposureMode::ShutterPriority => 4,
+                AutoExposureMode::AperturePriority => 8,
+            };
+            let err = uvc_set_ae_mode(
+                self.devh.as_ptr(),
+                mode
+            )
+            .into();
+            if err != Error::Success {
+                return Err(err);
+            }
+            Ok(())
+        }
+    }
     pub fn ae_priority(&self) -> Result<AutoExposurePriority> {
         unsafe {
             let mut priority = std::mem::MaybeUninit::uninit();
